@@ -37,12 +37,13 @@ class App{
         this.origin = new THREE.Vector3();
         this.euler = new THREE.Euler();
         this.quaternion = new THREE.Quaternion();
-        
+
         this.initScene();
         this.setupXR();
         
         window.addEventListener('resize', this.resize.bind(this) );
 	}	
+
     
     setEnvironment(){
         const loader = new RGBELoader().setDataType( THREE.UnsignedByteType );
@@ -61,64 +62,129 @@ class App{
             console.error( 'An error occurred setting the environment');
         } );
     }
-    
-    initScene(){
+
+    initScene() {
         this.loadingBar = new LoadingBar();
-        
         this.assetsPath = '../assets/';
         const loader = new GLTFLoader().setPath(this.assetsPath);
-		const self = this;
-		
-		// Load a GLTF resource
-		loader.load(
-			// resource URL
-			`aunkur.glb`,
-			// called when the resource is loaded
-			function ( gltf ) {
-				const object = gltf.scene;
-				
-				object.traverse(function(child){
-					if (child.isMesh){
-                        child.material.metalness = 0;
-                        child.material.roughness = 1;
-					}
-				});
-				
-				const options = {
-					object: object,
-					speed: 0.5,
-					animations: gltf.animations,
-					clip: gltf.animations[0],
-					app: self,
-					name: 'knight',
-					npc: false
-				};
-				
-				self.knight = new Player(options);
-                self.knight.object.visible = false;
-				
-				//self.knight.action = 'Dance';
-				const scale = 0.1;
-				self.knight.object.scale.set(scale, scale, scale); 
-				
-                self.loadingBar.visible = false;
-			},
-			// called while loading is progressing
-			function ( xhr ) {
-
-				self.loadingBar.progress = (xhr.loaded / xhr.total);
-
-			},
-			// called when loading has errors
-			function ( error ) {
-
-				console.log( 'An error happened' );
-
-			}
-		);
-        
+        const self = this;
+    
+        // Initialize model loading based on the dropdown selection
+        this.initModelLoading(loader);
+    
         this.createUI();
     }
+
+    initModelLoading(loader) {
+        const selector = document.getElementById('modelSelector');
+        selector.addEventListener('change', (event) => {
+            this.loadModel(loader, event.target.value);
+        });
+    
+        // Load the initial model based on the first option in the dropdown
+        this.loadModel(loader, selector.value);
+    }
+
+    loadModel(loader, modelName) {
+        this.loadingBar.visible = true;
+        const self = this;
+    
+        loader.load(
+            modelName,
+            function (gltf) {
+                const object = gltf.scene;
+    
+                object.traverse(function (child) {
+                    if (child.isMesh) {
+                        child.material.metalness = 0;
+                        child.material.roughness = 1;
+                    }
+                });
+    
+                const options = {
+                    object: object,
+                    speed: 0.5,
+                    animations: gltf.animations,
+                    clip: gltf.animations[0],
+                    app: self,
+                    name: 'knight',
+                    npc: false
+                };
+    
+                self.knight = new Player(options);
+                self.knight.object.visible = false;
+                const scale = 0.1;
+                self.knight.object.scale.set(scale, scale, scale);
+    
+                self.scene.add(self.knight.object);
+                self.loadingBar.visible = false;
+            },
+            function (xhr) {
+                self.loadingBar.progress = (xhr.loaded / xhr.total);
+            },
+            function (error) {
+                console.error('An error happened', error);
+            }
+        );
+    }
+    
+    // initScene(){
+    //     this.loadingBar = new LoadingBar();
+        
+    //     this.assetsPath = '../assets/';
+    //     const loader = new GLTFLoader().setPath(this.assetsPath);
+	// 	const self = this;
+		
+	// 	// Load a GLTF resource
+	// 	loader.load(
+	// 		// resource URL
+	// 		`aunkur.glb`,
+	// 		// called when the resource is loaded
+	// 		function ( gltf ) {
+	// 			const object = gltf.scene;
+				
+	// 			object.traverse(function(child){
+	// 				if (child.isMesh){
+    //                     child.material.metalness = 0;
+    //                     child.material.roughness = 1;
+	// 				}
+	// 			});
+				
+	// 			const options = {
+	// 				object: object,
+	// 				speed: 0.5,
+	// 				animations: gltf.animations,
+	// 				clip: gltf.animations[0],
+	// 				app: self,
+	// 				name: 'knight',
+	// 				npc: false
+	// 			};
+				
+	// 			self.knight = new Player(options);
+    //             self.knight.object.visible = false;
+				
+	// 			//self.knight.action = 'Dance';
+	// 			const scale = 0.1;
+	// 			self.knight.object.scale.set(scale, scale, scale); 
+				
+    //             self.loadingBar.visible = false;
+	// 		},
+	// 		// called while loading is progressing
+	// 		function ( xhr ) {
+
+	// 			self.loadingBar.progress = (xhr.loaded / xhr.total);
+
+	// 		},
+	// 		// called when loading has errors
+	// 		function ( error ) {
+
+	// 			console.log( 'An error happened' );
+
+	// 		}
+	// 	);
+        
+    //     this.createUI();
+    // }
     
     createUI() {
         

@@ -18,9 +18,26 @@
                 margin: 0;
                 background-color: #000;
             }
+
+            #modelSelector {
+            position: relative;
+            top: 20px; /* Adjust as needed */
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px;
+            border-radius: 10px;
+            background-color: rgb(226, 215, 62);
+            border: 1px solid #ddd;
+            font-size: 20px;
+        }
         </style>
 	</head>
 	<body>
+        <select id="modelSelector">
+            <option value="aunkur.glb">Aunkur</option>
+            <option value="albatross.glb">Albatross</option>
+            <option value="POS.glb">Aunkur POS</option>
+        </select>
         <script src="../libs/fas.js"></script>
         <script type="module">
             import { App } from './app.js';
