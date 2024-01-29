@@ -38,6 +38,14 @@ class App{
         this.euler = new THREE.Euler();
         this.quaternion = new THREE.Quaternion();
 
+        // Add reticle to the scene
+        this.addReticleToScene();
+
+        // Hit test related variables
+        this.hitTestSource = null;
+        this.localSpace = null;
+        this.hitTestSourceInitialized = false;
+
         this.initScene();
         this.setupXR();
         
@@ -74,6 +82,16 @@ class App{
     
         this.createUI();
     }
+
+    addReticleToScene() {
+        const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2);
+        const material = new THREE.MeshBasicMaterial();
+        this.reticle = new THREE.Mesh(geometry, material);
+        this.reticle.matrixAutoUpdate = false;
+        this.reticle.visible = false;
+        this.scene.add(this.reticle);
+    }
+
 
     initModelLoading(loader) {
         const selector = document.getElementById('modelSelector');
@@ -164,6 +182,18 @@ class App{
         
         const self = this;
         let controller, controller1;
+
+        this.renderer.xr.addEventListener('sessionstart', () => {
+            // Initialize hit test source when the session starts
+            this.initializeHitTestSource();
+        });
+
+        this.renderer.xr.addEventListener('sessionend', () => {
+            // Reset hit test source when the session ends
+            this.hitTestSourceInitialized = false;
+            this.hitTestSource = null;
+        });
+
         
         function onSessionStart(){
 
@@ -260,15 +290,55 @@ class App{
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( window.innerWidth, window.innerHeight );  
     }
+
+    async initializeHitTestSource() {
+        const session = this.renderer.xr.getSession();
+        const viewerSpace = await session.requestReferenceSpace("viewer");
+        this.hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
+        this.localSpace = await session.requestReferenceSpace("local");
+        this.hitTestSourceInitialized = true;
+    }
     
-	render( ) {   
-        const dt = this.clock.getDelta();
-        if ( this.renderer.xr.isPresenting ){
-            this.gestures.update();
-            this.ui.update();
+	render(timestamp,frame ) {   
+
+
+        if (frame) {
+
+
+            const dt = this.clock.getDelta();
+            if ( this.renderer.xr.isPresenting ){
+                this.gestures.update();
+                this.ui.update();
+            }
+
+            if ( this.knight !== undefined ) this.knight.update(dt);
+            this.renderer.render( this.scene, this.camera );
+
+            if (this.hitTestSourceInitialized) {
+                const hitTestResults = frame.getHitTestResults(this.hitTestSource);
+                if (hitTestResults.length > 0) {
+                    const hit = hitTestResults[0];
+                    const pose = hit.getPose(this.localSpace);
+                    this.reticle.visible = true;
+                    this.reticle.matrix.fromArray(pose.transform.matrix);
+                } else {
+                    this.reticle.visible = false;
+                }
+            }
+
+            this.renderer.render(this.scene, this.camera);
         }
-        if ( this.knight !== undefined ) this.knight.update(dt);
-        this.renderer.render( this.scene, this.camera );
+
+
+    }
+
+    onSelect() {
+        if (this.reticle.visible && this.knight && this.knight.object) {
+            // Place the model at the reticle's position
+            this.knight.object.position.setFromMatrixPosition(this.reticle.matrix);
+            this.knight.object.quaternion.setFromRotationMatrix(this.reticle.matrix);
+            this.knight.object.visible = true;
+        }
     }
 }
 
