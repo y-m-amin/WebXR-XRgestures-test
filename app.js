@@ -89,6 +89,20 @@ class App{
         this.loadingBar.visible = true;
         const self = this;
     
+        // Remove the existing model if it exists
+        if (this.knight && this.knight.object) {
+            this.scene.remove(this.knight.object);
+            this.knight.object.traverse((child) => {
+                if (child.isMesh) {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (child.material.map) child.material.map.dispose();
+                        child.material.dispose();
+                    }
+                }
+            });
+        }
+
         loader.load(
             modelName,
             function (gltf) {
