@@ -128,63 +128,6 @@ class App{
         );
     }
     
-    // initScene(){
-    //     this.loadingBar = new LoadingBar();
-        
-    //     this.assetsPath = '../assets/';
-    //     const loader = new GLTFLoader().setPath(this.assetsPath);
-	// 	const self = this;
-		
-	// 	// Load a GLTF resource
-	// 	loader.load(
-	// 		// resource URL
-	// 		`aunkur.glb`,
-	// 		// called when the resource is loaded
-	// 		function ( gltf ) {
-	// 			const object = gltf.scene;
-				
-	// 			object.traverse(function(child){
-	// 				if (child.isMesh){
-    //                     child.material.metalness = 0;
-    //                     child.material.roughness = 1;
-	// 				}
-	// 			});
-				
-	// 			const options = {
-	// 				object: object,
-	// 				speed: 0.5,
-	// 				animations: gltf.animations,
-	// 				clip: gltf.animations[0],
-	// 				app: self,
-	// 				name: 'knight',
-	// 				npc: false
-	// 			};
-				
-	// 			self.knight = new Player(options);
-    //             self.knight.object.visible = false;
-				
-	// 			//self.knight.action = 'Dance';
-	// 			const scale = 0.1;
-	// 			self.knight.object.scale.set(scale, scale, scale); 
-				
-    //             self.loadingBar.visible = false;
-	// 		},
-	// 		// called while loading is progressing
-	// 		function ( xhr ) {
-
-	// 			self.loadingBar.progress = (xhr.loaded / xhr.total);
-
-	// 		},
-	// 		// called when loading has errors
-	// 		function ( error ) {
-
-	// 			console.log( 'An error happened' );
-
-	// 		}
-	// 	);
-        
-    //     this.createUI();
-    // }
     
     createUI() {
         
@@ -213,9 +156,25 @@ class App{
             self.camera.add( self.ui.mesh );
         }
         
-        function onSessionEnd(){
-            self.camera.remove( self.ui.mesh );
+        function onSessionEnd(){ 
+            if (self.knight && self.knight.object) {
+            // Remove the model from the scene
+            self.scene.remove(self.knight.object);
+            // Optionally, dispose of the object to free up memory
+            self.knight.object.traverse((child) => {
+                if (child.isMesh) {
+                    if (child.geometry) {
+                        child.geometry.dispose();
+                    }
+                    if (child.material) {
+                        if (child.material.map) child.material.map.dispose();
+                        child.material.dispose();
+                    }
+                }
+            });
+            self.knight.object = null;
         }
+        self.camera.remove(self.ui.mesh);}
         
         const btn = new ARButton( this.renderer, { onSessionStart, onSessionEnd });
         
