@@ -169,11 +169,7 @@ class App{
             self.ui.mesh.position.set( 0, -0.15, -0.3 );
             self.camera.add( self.ui.mesh );
 
-             // Load the model based on the current dropdown selection when the session starts
-            const selector = document.getElementById('modelSelector');
-            if (selector) {
-                self.loadModel(new GLTFLoader().setPath(self.assetsPath), selector.value);
-            }
+            
         }
         
         function onSessionEnd(){ 
