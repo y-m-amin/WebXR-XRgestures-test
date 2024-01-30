@@ -111,8 +111,8 @@ class App{
     
                 object.traverse(function (child) {
                     if (child.isMesh) {
-                        child.material.metalness = 0;
-                        child.material.roughness = 1;
+                        child.material.metalness = 0.8;
+                        child.material.roughness = 0.8;
                     }
                 });
     
