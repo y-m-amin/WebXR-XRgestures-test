@@ -53,7 +53,7 @@ class App{
         
         const self = this;
         
-        loader.load( '../assets/venice_sunset_1k.hdr', ( texture ) => {
+        loader.load( '../assets/christmas_photo_studio_07_2k.hdr', ( texture ) => {
           const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
           pmremGenerator.dispose();
 
@@ -202,7 +202,7 @@ class App{
             self.ui.updateElement('info', 'tap' );
             if (!self.knight.object.visible){
                 self.knight.object.visible = true;
-                self.knight.object.position.set( 0, -0.5, -1 ).add( ev.position );
+                self.knight.object.position.set( 0, -.6, -.5 ).add( ev.position );
                 self.scene.add( self.knight.object ); 
             }
         });
