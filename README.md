@@ -29,10 +29,7 @@ A small WebXR test project that lets you place and manipulate **3 preloaded 3D m
 ## 🧰 Tech Stack
 
 - [Three.js](https://threejs.org/)
-- WebXR + `ARButton`
-- `GLTFLoader` for loading `.gltf/.glb` models
-- `RGBELoader` + `PMREMGenerator` for environment lighting
-- `CanvasUI` for in-AR debug/info panel
+- WebXR 
 - `XRGestures` for gesture recognition
 
 ---
@@ -45,6 +42,6 @@ A small WebXR test project that lets you place and manipulate **3 preloaded 3D m
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/y-m-amin/web-xr-xrgestures-test.git
+git clone https://github.com/y-m-amin/WebXR-XRgestures-test.git
 cd web-xr-xrgestures-test
 ```
